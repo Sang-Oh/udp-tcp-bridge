@@ -27,7 +27,7 @@ bool doDump		= false;
 
 string infoString = "UDP->TCP Bridge by Mehmet Akten (c) 2009";
 string dataString;
-string version = "v0.1";
+string version = "v0.11";
 int bufferSize;
 
 ofxTCPServer TCPServer;
@@ -38,12 +38,6 @@ ofxXmlSettings XML;
 
 //--------------------------------------------------------------
 void testApp::setup(){
-	TCPServer.setup(TCPPort);
-	
-	UDPReceiver.Create();
-	UDPReceiver.Bind(UDPPort);
-	UDPReceiver.SetNonBlocking(true);
-	
 	ofSetFrameRate(60);
 	ofBackground(40, 40, 40);
 	ofSetWindowTitle("UDP->TCP Bridge " + version);
@@ -53,6 +47,12 @@ void testApp::setup(){
 	TCPPort	= XML.getValue("TCP", 3000);
 	UDPPort	= XML.getValue("UDP", 3333);
 	infoString += " " + version + "\n\nListening on UDP port: " + ofToString(UDPPort) + "\nSending on TCP port: " + ofToString(TCPPort) + "\n\nPress 'd' to toggle debug info";
+
+	TCPServer.setup(TCPPort);
+	
+	UDPReceiver.Create();
+	UDPReceiver.Bind(UDPPort);
+	UDPReceiver.SetNonBlocking(true);
 }
 
 //--------------------------------------------------------------
