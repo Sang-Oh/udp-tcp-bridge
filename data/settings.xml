@@ -1,3 +1,18 @@
+<settings>
+
+<!-- TCP port to listen on -->
 <TCP>3000</TCP>
+
+<!-- UDP port to send on -->
 <UDP>3333</UDP>
-<Frequency>240</Frequency>
+
+<!-- update rate -->
+<Frequency>120</Frequency>
+
+
+<!-- whether or not size of the buffer should be prefixed to the data -->
+<!-- if yes, the bridge adds an int32 at the begining of the stream to specific number of bytes -->
+<!-- required by OSC / TCP specifications -->
+<prefixSize>1<prefixSize>
+
+</settings>

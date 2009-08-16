@@ -21,7 +21,7 @@
 #include "ofxXmlSettings.h"
 #include <time.h>
 
-#define		kTitleString	"UDP->TCP Bridge v0.2"
+#define		kTitleString	"UDP->TCP Bridge v0.2.1"
 #define		kTextColor		0xAAAAAA
 #define		kTextPosX		40
 
@@ -32,6 +32,7 @@ string		dataString;
 int			bufferSize;
 bool		doDebug;
 bool		isIdle			= false;
+bool		prefixSize;
 
 // history stuff
 #define		kHistorySize	500
@@ -66,11 +67,12 @@ void printTime(string &s) {
 //--------------------------------------------------------------
 void testApp::setup(){
 	XML.loadFile("settings.xml");
-	int TCPPort	= XML.getValue("TCP", 3000);
-	int UDPPort	= XML.getValue("UDP", 3333);
-	int	freq	= XML.getValue("Frequency", 60);
+	int TCPPort	= XML.getValue("settings:TCP", 3000);
+	int UDPPort	= XML.getValue("settings:UDP", 3333);
+	int	freq	= XML.getValue("settings:Frequency", 60);
+	prefixSize	= XML.getValue("settings:prefixSize", false);
 	
-	infoString = string(kTitleString) + " by Mehmet Akten (c) 2009 | www.memo.tv\n\nlistening on UDP port: " + ofToString(UDPPort) + "\nsending on TCP port: " + ofToString(TCPPort) + "\nat " + ofToString(freq) +" Hz";
+	infoString = string(kTitleString) + " by Mehmet Akten (c) 2009 | www.memo.tv\n\n(settings can be changed from data/settings.xml)\nlistening on UDP port: " + ofToString(UDPPort) + "\nsending on TCP port: " + ofToString(TCPPort) + "\nprefixSize: " + (prefixSize ? "YES" : "NO") + " | target: " + ofToString(freq) +" Hz";
 	
 	ofSetVerticalSync(false);
 	ofSetFrameRate(freq);
@@ -92,12 +94,26 @@ void testApp::setup(){
 //--------------------------------------------------------------
 void testApp::update() {
 	
-	static char data[65536];
-	bufferSize = UDPReceiver.Receive(data, 65536);
+	static char data[65536+4];
+	
+	int extraBytes = prefixSize<<2;
+	bufferSize = UDPReceiver.Receive(data + extraBytes, 65536);
 	
 	if(bufferSize>0) {
 		isIdle = false;
-		TCPServer.sendRawBytesToAll(data, bufferSize);
+		if(prefixSize) {
+			
+#ifdef TARGET_LITTLE_ENDIAN		
+			data[0] = bufferSize>>24;
+			data[1] = (bufferSize>>16) & 255;
+			data[2] = (bufferSize>>8) & 255;
+			data[3] = (bufferSize) & 255;
+#else
+			*((int32_t*)data) = bufferSize;
+#endif		
+		}
+		
+		TCPServer.sendRawBytesToAll(data, bufferSize+extraBytes);
 	}
 	
 	
@@ -109,13 +125,14 @@ void testApp::update() {
 		if(bufferSize>0) {
 			dataString = "";
 			printTime(dataString);
-			dataString += "sending " + ofToString(bufferSize) + " bytes\n";
+			string extraBytes = prefixSize ? "4 + " : "" ;
+			dataString += "sending " + extraBytes + ofToString(bufferSize) + " bytes\n";
 			
 			for(int i=0; i<bufferSize; i++) {
 				char c = data[i];
 				printf("%i %c=%i\n", i, c, c);
 			}
-			printf("%i bytes ----------------- \n\n", bufferSize);
+			printf("%s %i bytes ----------------- \n\n", extraBytes.c_str(), bufferSize);
 		} else {
 			if(!isIdle) {
 				printTime(dataString);
@@ -144,14 +161,14 @@ void testApp::draw() {
 		
 		ofSetColor(kTextColor);
 		ofDrawBitmapString(infoString + " | actual : " + ofToString(ofGetFrameRate(), 2) + " Hz", kTextPosX, 40); 
-		ofDrawBitmapString(dataString, kTextPosX, 140);
+		ofDrawBitmapString(dataString, kTextPosX, 160);
 	} else {
 		ofSetColor(kTextColor);
 		ofDrawBitmapString(infoString, kTextPosX, 40); 
 	}
 	
-	ofDrawBitmapString(helpString, kTextPosX, 120);
-
+	ofDrawBitmapString(helpString, kTextPosX, 140);
+	
 }
 
 //--------------------------------------------------------------
