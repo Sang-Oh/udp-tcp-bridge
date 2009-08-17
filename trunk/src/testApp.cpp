@@ -99,7 +99,7 @@ void testApp::update() {
 	int extraBytes = prefixSize<<2;
 	bufferSize = UDPReceiver.Receive(data + extraBytes, 65536);
 	
-	if(bufferSize>0) {
+	while(bufferSize>0) {
 		isIdle = false;
 		if(prefixSize) {
 			
@@ -114,10 +114,11 @@ void testApp::update() {
 		}
 		
 		TCPServer.sendRawBytesToAll(data, bufferSize+extraBytes);
+		bufferSize = UDPReceiver.Receive(data + extraBytes, 65536);
 	}
 	
 	
-	if(doDebug) {
+	/*if(doDebug) {
 		//printf("%i %i\n", historyHead, bufferSize);
 		history[historyHead] = bufferSize;
 		if(++historyHead >= kHistorySize) historyHead = 0;
@@ -139,7 +140,7 @@ void testApp::update() {
 				dataString += "no data received";
 				isIdle = true;
 			}
-		}
+		}*/
 	}
 }
 
@@ -147,7 +148,7 @@ void testApp::update() {
 //--------------------------------------------------------------
 void testApp::draw() {
 	if(doDebug) {
-		glColor3f(0, 0.3f, 0);
+		/*glColor3f(0, 0.3f, 0);
 		glPushMatrix();
 		glScalef(ofGetWidth() * 1.0f/kHistorySize, 1, 1);
 		for(int i=0; i<kHistorySize; i++) {
@@ -157,7 +158,7 @@ void testApp::draw() {
 			glVertex2f(i, ofGetHeight()-value/2);
 			glEnd();
 		}
-		glPopMatrix();
+		glPopMatrix();*/
 		
 		ofSetColor(kTextColor);
 		ofDrawBitmapString(infoString + " | actual : " + ofToString(ofGetFrameRate(), 2) + " Hz", kTextPosX, 40); 
