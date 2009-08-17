@@ -98,6 +98,7 @@ void testApp::update() {
 	
 	int extraBytes = prefixSize<<2;
 	bufferSize = UDPReceiver.Receive(data + extraBytes, 65536);
+	int receivedBytes = bufferSize;
 	
 	while(bufferSize>0) {
 		isIdle = false;
@@ -115,32 +116,33 @@ void testApp::update() {
 		
 		TCPServer.sendRawBytesToAll(data, bufferSize+extraBytes);
 		bufferSize = UDPReceiver.Receive(data + extraBytes, 65536);
+		receivedBytes+=bufferSize;
 	}
 	
 	
-	/*if(doDebug) {
-		//printf("%i %i\n", historyHead, bufferSize);
-		history[historyHead] = bufferSize;
+	if(doDebug) {
+		//printf("%i %i\n", historyHead, sentSize);
+		history[historyHead] = receivedBytes;
 		if(++historyHead >= kHistorySize) historyHead = 0;
 		
-		if(bufferSize>0) {
+		if(receivedBytes>0) {
 			dataString = "";
 			printTime(dataString);
-			string extraBytes = prefixSize ? "4 + " : "" ;
-			dataString += "sending " + extraBytes + ofToString(bufferSize) + " bytes\n";
+			//string extraBytes = prefixSize ? "4 + " : "" ;
+			dataString += "sending " + ofToString(receivedBytes) + " bytes\n";
 			
 			for(int i=0; i<bufferSize; i++) {
 				char c = data[i];
 				printf("%i %c=%i\n", i, c, c);
 			}
-			printf("%s %i bytes ----------------- \n\n", extraBytes.c_str(), bufferSize);
+			printf("%i bytes ----------------- \n\n", receivedBytes);
 		} else {
 			if(!isIdle) {
 				printTime(dataString);
 				dataString += "no data received";
 				isIdle = true;
 			}
-		}*/
+		}
 	}
 }
 
@@ -148,17 +150,17 @@ void testApp::update() {
 //--------------------------------------------------------------
 void testApp::draw() {
 	if(doDebug) {
-		/*glColor3f(0, 0.3f, 0);
+		glColor3f(0, 0.3f, 0);
 		glPushMatrix();
 		glScalef(ofGetWidth() * 1.0f/kHistorySize, 1, 1);
 		for(int i=0; i<kHistorySize; i++) {
 			float value = history[(i+historyHead)%kHistorySize];
 			glBegin(GL_LINES);
 			glVertex2f(i, ofGetHeight());
-			glVertex2f(i, ofGetHeight()-value/2);
+			glVertex2f(i, ofGetHeight()-value/4);
 			glEnd();
 		}
-		glPopMatrix();*/
+		glPopMatrix();
 		
 		ofSetColor(kTextColor);
 		ofDrawBitmapString(infoString + " | actual : " + ofToString(ofGetFrameRate(), 2) + " Hz", kTextPosX, 40); 
