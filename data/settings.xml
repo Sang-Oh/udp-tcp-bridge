@@ -7,7 +7,7 @@
 <UDP>3333</UDP>
 
 <!-- update rate -->
-<Frequency>120</Frequency>
+<Frequency>60</Frequency>
 
 
 <!-- whether or not size of the buffer should be prefixed to the data -->
