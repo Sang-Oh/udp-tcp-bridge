@@ -21,7 +21,7 @@
 #include "ofxXmlSettings.h"
 #include <time.h>
 
-#define		kTitleString	"UDP->TCP Bridge v0.2.1"
+#define		kTitleString	"UDP->TCP Bridge v0.2.2"
 #define		kTextColor		0xAAAAAA
 #define		kTextPosX		40
 
@@ -72,7 +72,7 @@ void testApp::setup(){
 	int	freq	= XML.getValue("settings:Frequency", 60);
 	prefixSize	= XML.getValue("settings:prefixSize", false);
 	
-	infoString = string(kTitleString) + " by Mehmet Akten (c) 2009 | www.memo.tv\n\n(settings can be changed from data/settings.xml)\nlistening on UDP port: " + ofToString(UDPPort) + "\nsending on TCP port: " + ofToString(TCPPort) + "\nprefixSize: " + (prefixSize ? "YES" : "NO") + " | target: " + ofToString(freq) +" Hz";
+	infoString = string(kTitleString) + " by Mehmet Akten (c) 2009 | www.memo.tv\nThe Mega Super Awesome Visuals Company | www.msavisuals.com\n\n(settings can be changed from data/settings.xml)\nlistening on UDP port: " + ofToString(UDPPort) + "\nsending on TCP port: " + ofToString(TCPPort) + "\nprefixSize: " + (prefixSize ? "YES" : "NO") + " | target: " + ofToString(freq) +" Hz";
 	
 	ofSetVerticalSync(false);
 	ofSetFrameRate(freq);
